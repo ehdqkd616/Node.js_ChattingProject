@@ -9,16 +9,53 @@
 
     <div class="container mb-3">
         <div class="jumbotron">
-            <form action="/signup" method="post">
-                <div class="loginArea">
-                    <input type="text" class="form-control loginBox" placeholder="ID" name="userId">
-                    <input type="password" class="form-control loginBox" placeholder="Password" name="password">
-                </div>
-                <div class="buttonArea">
-                    <button type="submit" class="btn btn-success">Sign up</button>
-                </div>
-            </form>
+          <table class="table table-condensed">
+            <tr class="content">
+              <td>참여인원 수 : </td>
+              <td>방 번호 : 1</td>
+              <td><button type="button" class="btn btn-primary enter_btn" style="width:100px; float:right;">입장</button></td>
+            </tr>
+            <tr class="content">
+              <td>참여인원 수 : </td>
+              <td>방 번호 : 2</td>
+              <td><button type="button" class="btn btn-primary enter_btn" style="width:100px; float:right;">입장</button></td>
+            </tr>
+          </table>  
         </div>
     </div>
+    
+    <script>
+      $(document).ready(function(){
+        $("tr.content .enter_btn").click(function(){
+
+          roomNo = $(this).parent('td').parent('tr').children('td').eq(1).text();
+          roomNo = roomNo.substring(7, roomNo.length);
+
+          window.location.href='/openchat/room?no='+roomNo;
+        });
+      });
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      $(function(){
+
+        socket = io.connect('http://localhost:3000/');
+
+        socket.on("connect", function (data) {
+  
+          console.log("server connect");
+  
+  
+        });
+  
+        socket.on("message", function (msg) {
+          console.log(msg);
+        });
+      })
+    </script>
+
+
   </body>
 </html>

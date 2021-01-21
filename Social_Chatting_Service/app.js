@@ -4,6 +4,7 @@ var path = require('path');                   // path 모듈
 var cookieParser = require('cookie-parser');      // 쿠키 모듈
 var expressSession = require('express-session');  // 세션 모듈
 var FileStore = require('session-file-store')(expressSession);
+var http = require("http");
 
 var bodyParser = require('body-parser');      // body-parser 모듈 로드
 
@@ -15,7 +16,23 @@ var chatRouter = require('./routes/openchat');  // chat 라우터
 var directRouter = require('./routes/direct');  // direct 라우터
 
 var app = express();
+var server = http.Server(app);
+var io = require('socket.io')(server); 
 
+// io.on('connection', function (socket) { // 소켓 연결 시
+
+//   console.log("a user connected");  
+//   socket.broadcast.emit('hi');  // 소켓에 전부 보내기
+
+//   socket.on('disconnect', function () {
+//     console.log('user disconnected');
+//   });
+
+//   socket.on('chatMessage', function (msg) {
+//     console.log('message: ' + msg);
+//     io.emit('chatMessage', msg);
+//   });
+// });
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -32,7 +49,7 @@ app.use(express.static(path.join(__dirname, 'public')));  // 정적 파일 로�
 
 //세션 환경 세팅
 app.use(expressSession({
-  secret: 'secretKey',       
+  secret: 'secretKey',
   resave: false,
   saveUninitialized: true,
   store: new FileStore()
@@ -51,12 +68,12 @@ app.use('/direct', directRouter);
 
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -65,5 +82,6 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
 
 module.exports = app;

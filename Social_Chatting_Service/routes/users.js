@@ -3,8 +3,6 @@ const { connect } = require('../lib/db');
 var router = express.Router();
 var db = require('../lib/db'); // 커넥션 연결
 
-
-
 router.post('/signin', function (req, res, next) { // 회원가입 폼
 
   var userId = req.body.userId;

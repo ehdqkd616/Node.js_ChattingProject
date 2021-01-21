@@ -7,6 +7,7 @@
 var app = require('../app');
 var debug = require('debug')('social-chatting-service:server');
 var http = require('http');
+const { Socket } = require('dgram');
 
 /**
  * Get port from environment and store in Express.
@@ -21,6 +22,54 @@ app.set('port', port);
 
 var server = http.createServer(app);
 // app.io.attach(server);
+
+
+var io = require('socket.io')(server);
+// var room = io.of('/room');  // namespace
+
+io.on('connection', function(client){ // 소켓이 연결되었을 때
+  
+  var action;
+  var room;
+  var userId;
+  
+  client.on('joinRoom', function(data){
+    
+    // 새로운 방 입장
+    action = data.action;
+    room = data.room;
+    userId = data.userId;
+    
+    if(action == 'enter'){
+      client.join(room);
+      client.to(room).emit('notice', userId+'님이 입장하셨습니다.');
+    }else if(action == 'leave'){
+      // 방 나가기
+      client.leave(room);
+      client.to(room).emit('notice', userId+'님이 퇴장하셨습니다.')
+    }
+  });
+
+  // 채팅 메시지, 룸으로(to)전송
+  client.on('sendMessage', function(data){
+    io.to(room).emit('message', data);
+  });
+  
+  console.log('socket connected!');
+  io.emit('message', "전체메세지 입니다.");
+  // setInterval(function(){
+  //   client.emit('message', "3초마다 메세지를 보냅니다.");
+  // }, 3000);
+
+  client.on('messageChange', function(data){  //  
+    console.log(data);
+    client.emit('receive', data.message.split('').reverse().join(''))
+  });
+
+  client.on('disconnect', function(){
+    console.log('socket connected!'); // 소켓 연결이 끊겼을 때
+  });
+});
 
 /**
  * Listen on provided port, on all network interfaces.
