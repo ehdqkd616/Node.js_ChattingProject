@@ -44,7 +44,7 @@
         border: solid 1px;
       }
 
-      .text_area{
+      #text_area{
         flex-grow: 1;
         resize: none;
       }
@@ -92,13 +92,13 @@
           <div class="layout_area">
             <div class="chatBox_area">
               <div class="chatting_area">
-                <div class="room_no">방 번호 : </div>
+                <div class="room_no">방 번호 : <%=room %></div>
                 <div class="message_area">
-                  <span class="notice_text">user01님이 입장하셨습니다</span>
-                  <span class="message_text">user01: 안녕하세요</span>
+                  <span class="notice_text"></span>
+                  <span class="message_text"></span>
                 </div>
                 <div class="text_div">
-                  <textarea class="text_area"></textarea>
+                  <input id="text_area" type="text"></input>
                 </div>
               </div>
 
@@ -107,7 +107,8 @@
                   <div style="text-align: center; border-bottom: solid 1px; display:inline-block">현재 인원 : </div>
                   <div class="userList">
                     <ul style="list-style:none;">
-                      <li>asdf</li>
+                      <li>user01</li>
+                      <li>user02</li>
                     </ul>
                   </div>
                 </div>
@@ -121,28 +122,65 @@
   <script src="/socket.io/socket.io.js"></script>
   <script>
     $(function(){
-      
+
+      var room = '<%= room%>';
+      var userId = '<%=loginUser%>';
+
+      console.log();
+
       socket = io.connect('http://localhost:3000/');
 
       socket.on("connect", function(data){
       
-      console.log("server connect");
-      socket.emit('joinRoom', {room:'room1'}); // 방 입장
-      
-      $('#exit_btn').click(function(){
-        socket.emit('')
-        window.location.href="/openchat/roomlist";
-      });
-
-      // 채팅 메시지 수신
-      socket.on('message', function(data){
-        var msg = data['msg'];
-        var userId = data['userId'];
-        var str = userId + ' : ' + msg;
+        console.log("server connect");
+        socket.emit('joinRoom', {room:room, userId:userId}); // 방 입장
         
-        // 메세지 채팅창에 붙이기
-        // $('#message_content').append();
+        socket.on('msgAlert', function(data){
+          var message = data;
+          var str = `<span class="notice_text">${message}</span>`;
+
+          $(".message_area").find("span:last").after(str);
+          $('.message_area').scrollTop($('.message_area')[0].scrollHeight);
         });
+        
+        socket.on('msgSend', function(data){
+          var message = data.message_sender + " : " + data.message_content;
+          var str = `<span class="message_text">${message}</span>`;
+          
+          $(".message_area").find("span:last").after(str);
+          $('.message_area').scrollTop($('.message_area')[0].scrollHeight);
+        });
+
+        $('#exit_btn').click(function(){
+          socket.emit('leaveRoom', {room:room, userId:userId}); // 방 퇴장
+          window.location.href="/openchat/roomlist";
+        });
+
+        $("#text_area").keypress(function(e){
+          if(e.keyCode == 13){
+            send();
+          }
+        });
+
+        function send() {
+          var message_content = $("#text_area").val();
+          var message_sender = '<%= loginUser %>';
+          var messageObject = {
+            "message_content" : message_content,
+            "message_sender" : message_sender,
+            "room" : room
+          };
+
+          if(message_content == "" || message_content == null){
+            alert("메세지를 입력해주세요.");
+            $("#text_area").focus();
+          }else{
+            socket.emit('sendMsg', messageObject);
+            $("#text_area").val('');
+            $("#text_area").focus();
+            $('.message_area').scrollTop($('.message_area')[0].scrollHeight);
+          }
+        }
 
       });
 

@@ -25,50 +25,62 @@ var server = http.createServer(app);
 
 
 var io = require('socket.io')(server);
-// var room = io.of('/room');  // namespace
+var openchat = io.of('/openchat');  // namespace  openchat
+var direct = io.of('/direct');  // namespace  direct
 
-io.on('connection', function(client){ // 소켓이 연결되었을 때
+var count = 0;
+var rooms = [];
+
+// openchat.on('connection', function(socket){ // 오픈 채팅 소켓 연결
   
-  var action;
-  var room;
-  var userId;
+// });
+
+// direct.on('connection', function(socket){ // 다이렉트 소켓 연결
   
-  client.on('joinRoom', function(data){
-    
-    // 새로운 방 입장
-    action = data.action;
-    room = data.room;
-    userId = data.userId;
-    
-    if(action == 'enter'){
-      client.join(room);
-      client.to(room).emit('notice', userId+'님이 입장하셨습니다.');
-    }else if(action == 'leave'){
-      // 방 나가기
-      client.leave(room);
-      client.to(room).emit('notice', userId+'님이 퇴장하셨습니다.')
-    }
+// });
+
+io.on('connection', function(socket){ // 소켓이 연결되었을 
+
+  console.log(socket.client.conn.server.clientsCount);  // 접속자 수
+
+  socket.on('joinRoom', function(data){
+    var userId = data.userId;
+    var room = data.room;
+    socket.join(room);  // 룸 입장
+    console.log('JOIN ROOM', io.sockets.adapter.rooms);
+    io.sockets.in(room).emit('msgAlert', userId + '님이 입장하셨습니다.');
+  });
+  socket.on('leaveRoom', function(data){
+
+    var userId = data.userId;
+    var room = data.room;
+    socket.leave(room);  // 룸 퇴장
+    console.log('OUT ROOM', io.sockets.adapter.rooms);
+    io.sockets.in(room).emit('msgAlert', userId + '님이 퇴장하셨습니다.');
+  });
+  socket.on('sendMsg', function(data){  // message 보내기
+    var room = data.room;
+    io.sockets.in(room).emit('msgSend',data);//자신포함 전체 룸안의 유저
+    //socket.broadcast.to(room).emit('msgAlert',data); //자신 제외 룸안의 유저
+    //socket.in(room).emit('msgAlert',data); //broadcast 동일하게 가능 자신 제외 룸안의 유저
+    //io.of('namespace').in(room).emit('msgAlert', data) //of 지정된 name space의 유저의 룸
   });
 
-  // 채팅 메시지, 룸으로(to)전송
-  client.on('sendMessage', function(data){
-    io.to(room).emit('message', data);
+  socket.on('disconnect', function(){
+    console.log('NOT USER DISCONNECT : ', socket.id);
+    console.log('ROOM LIST', io.sockets.adapter.rooms);
   });
-  
-  console.log('socket connected!');
-  io.emit('message', "전체메세지 입니다.");
-  // setInterval(function(){
-  //   client.emit('message', "3초마다 메세지를 보냅니다.");
-  // }, 3000);
-
-  client.on('messageChange', function(data){  //  
-    console.log(data);
-    client.emit('receive', data.message.split('').reverse().join(''))
-  });
-
-  client.on('disconnect', function(){
-    console.log('socket connected!'); // 소켓 연결이 끊겼을 때
-  });
+  /*
+  * 룸리스트 콘솔로그
+  * socket.io 1.x 에서 io.sockets.manager.rooms => io.sockets.adapter.rooms
+  * ROOM LIST { qNADgg3CCxESDLm5AAAA: [ qNADgg3CCxESDLm5AAAA: true ],
+  test_room:
+  [ qNADgg3CCxESDLm5AAAA: true,
+  '0rCX3v4pufWvQ6uwAAAB': true,
+  'iH0wJHGh-qKPRd2RAAAC': true ],
+  '0rCX3v4pufWvQ6uwAAAB': [ '0rCX3v4pufWvQ6uwAAAB': true ],
+  'iH0wJHGh-qKPRd2RAAAC': [ 'iH0wJHGh-qKPRd2RAAAC': true ] }
+  */
 });
 
 /**

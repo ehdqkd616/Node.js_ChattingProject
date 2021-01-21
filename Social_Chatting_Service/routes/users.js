@@ -72,7 +72,6 @@ router.get('/allList', function (req, res, next) { // 유저 리스트
         console.log(err);
         res.status(500);
       } else {
-        console.log(userList);
         res.render('usersList', { 'userList': userList, 'loginUser': loginUser });
       }
     });  
