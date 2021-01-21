@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <%- include('header') %>
+    <title>Open ChatRoom</title>
+  </head>
+  <body>
+    <%- include('nav') %>
+
+    <div class="container mb-3">
+        <div class="jumbotron">
+            <form action="/signup" method="post">
+                <div class="loginArea">
+                    <input type="text" class="form-control loginBox" placeholder="ID" name="userId">
+                    <input type="password" class="form-control loginBox" placeholder="Password" name="password">
+                </div>
+                <div class="buttonArea">
+                    <button type="submit" class="btn btn-success">Sign up</button>
+                </div>
+            </form>
+        </div>
+    </div>
+  </body>
+</html>

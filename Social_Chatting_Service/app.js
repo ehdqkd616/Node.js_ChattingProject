@@ -1,26 +1,54 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+var createError = require('http-errors');     // errors 모듈
+var express = require('express');             // expresss 모듈
+var path = require('path');                   // path 모듈
+var cookieParser = require('cookie-parser');      // 쿠키 모듈
+var expressSession = require('express-session');  // 세션 모듈
+var FileStore = require('session-file-store')(expressSession);
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var bodyParser = require('body-parser');      // body-parser 모듈 로드
+
+var logger = require('morgan');               // 로거 모듈
+
+var indexRouter = require('./routes/index');  // index 라우터
+var usersRouter = require('./routes/users');  // users 라우터
+var chatRouter = require('./routes/openchat');  // chat 라우터
+var directRouter = require('./routes/direct');  // direct 라우터
 
 var app = express();
 
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+app.set('view engine', 'ejs');
 
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(logger('dev'));                               // logger 모듈 사용
+app.use(express.json());                              // json 모듈 사용
+app.use(express.urlencoded({ extended: false }));     // express-parser 사용
+app.use(bodyParser.urlencoded({ extended: false }));  // body-parser 사용
 
+app.use(cookieParser());                                  // cookieParser 모듈 사용
+app.use(express.static(path.join(__dirname, 'public')));  // 정적 파일 로드 사용
+
+
+//세션 환경 세팅
+app.use(expressSession({
+  secret: 'secretKey',       
+  resave: false,
+  saveUninitialized: true,
+  store: new FileStore()
+}));
+
+
+// use bootstrap
+app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js')); // redirect bootstrap JS
+app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css')); // redirect CSS bootstrap
+
+// set Rounter
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/openchat', chatRouter);
+app.use('/direct', directRouter);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

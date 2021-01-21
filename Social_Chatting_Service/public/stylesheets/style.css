@@ -1,8 +1,52 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+/* public/stylesheets/style.css */
+
+/* header, nav css */
+.contact .contact-form,
+.contact-index ul{
+  max-width: 500px;
+}
+.contact h2{
+  color: tomato;
+}
+.contact .contact-form label,
+.contact-show label{
+  display: inline-block;
+  width: 70px;
+}
+.contact .contact-menu form{
+  display: inline-block;
 }
 
-a {
-  color: #00B7FF;
+
+/* login page css */
+.loginArea{
+  text-align: center;
 }
+
+.loginBox {
+  display: inline-block;
+  width: 50%;
+  margin: 5px;
+}
+
+.buttonArea{
+  margin-top: 30px;
+  text-align: center;
+}
+
+.btn{
+  display: inline-block;
+  width: 25%;
+}
+
+
+
+.cate_area{
+  display: flex;
+}
+
+.cate_div{
+  flex: 1;
+  text-align: center;
+}
+

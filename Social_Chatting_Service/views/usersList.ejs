@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <%- include('header') %>
+    <title>User List</title>
+  </head>
+  <body>
+    <%- include('nav') %>
+    
+    <div class="container mb-3">
+        <div class="jumbotron">
+            <table class="table table-condensed">
+              <th>ID</th>
+              <th>가입날짜</th>
+              <th style="width:100px">친구수</th>
+              <th style="width:120px">친구요청</th>
+              <% if(userList == '') { %>
+              <tr><td colspan="4">유저 목록 없음</td></tr>
+              <% } else { %>
+              <% for (var i in userList) { %>
+              <tr class="content">
+                <td><%= userList[i].USERID %></td><input type="hidden" name="follow_to" value='<%= userList[i].USERID %>'>
+                <td><%= userList[i].JOIN_DATE %></td>
+                <td><%= userList[i].F_CNT %></td>
+                <% if(userList[i].STATUS === 'N' || userList[i].STATUS == null) { %>
+                <td><button type="button" class="btn btn-primary follow_btn" style="width:100px;">친구요청</button></td>
+                <% } else if(userList[i].STATUS === 'W') { %>
+                <td><button type="button" class="btn btn-success" style="width:100px;">요청대기</button></td>
+                <% } %>
+              </tr>
+              <% } %>
+              <% } %>
+            </table>
+        </div>
+    </div>
+
+    <script>
+      $(document).ready(function(){
+        $("tr.content .follow_btn").click(function(){
+
+          var follow_to = $(this).parent('td').parent('tr').children('td').eq(0).text();
+          console.log($(this).parent('td').parent('tr').children('td').eq(0).text());
+          window.location.href='/users/requestFollow?follow_to='+follow_to;
+          
+        });
+      });
+    </script>
+
+  </body>
+</html>

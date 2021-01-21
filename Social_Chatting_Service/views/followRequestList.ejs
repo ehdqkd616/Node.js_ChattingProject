@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <%- include('header') %>
+    <title>Follow Request List</title>
+  </head>
+  <body>
+    <%- include('nav') %>
+
+    <div class="container mb-3">
+        <div class="jumbotron">
+          <div class="cate_area">
+            <div class="cate_div"><a href="/users/followRequestList" class="btn btn-default" style="width:80px;">수신함</a></div>
+            <div class="cate_div"><a href="/users/friendsList" class="btn btn-default" style="width:80px;">목록</a></div>
+          </div>
+          <hr>
+          <table class="table table-condensed">
+            <% if(followRequestList == '') { %>
+              <tr><td>친구 요청 목록이 없습니다.</td></tr>
+            <% } else { %>
+            <% for (var i in followRequestList) { %>
+            <tr class="content">
+              <td>ID: <%= followRequestList[i].FOLLOW_FROM %></td>
+              <td>가입날짜: <%= followRequestList[i].JOIN_DATE %></td>
+              <td><button type="button" class="btn btn-primary accept_btn" style="width:80px;">수락</button></td>
+              <td><button type="button" class="btn btn-danger deny_btn" style="width:80px;">거절</button></td>
+            </tr>
+            <% } %>
+            <% } %>
+          </table>  
+        </div>
+    </div>
+
+    <script>
+      $(document).ready(function(){
+        $("tr.content .accept_btn").click(function(){
+
+          var follow_from = $(this).parent('td').parent('tr').children('td').eq(0).text();
+          console.log(follow_from.substring(4, follow_from.length));
+          
+          follow_from  = follow_from.substring(4, follow_from.length);
+          window.location.href='/users/acceptFollow?follow_from='+follow_from;
+        });
+
+        $("tr.content .deny_btn").click(function(){
+
+          var follow_from = $(this).parent('td').parent('tr').children('td').eq(0).text();
+          console.log(follow_from.substring(4, follow_from.length));
+
+          follow_from  = follow_from.substring(4, follow_from.length);
+          window.location.href='/users/rejectFollow?follow_from='+follow_from;
+        });        
+      });
+    </script>
+  </body>
+</html>

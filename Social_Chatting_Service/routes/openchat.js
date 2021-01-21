@@ -3,12 +3,12 @@ var router = express.Router();
 
 
 
-router.get('/introduce', function(req, res, next) {
-  res.render('introduce');
+router.get('/roomlist', function(req, res, next) {
+  res.render('openChatRoomList');
 });
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
+router.get('/room', function(req, res, next) {
   res.render('index');
 });
 
