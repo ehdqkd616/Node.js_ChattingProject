@@ -95,7 +95,6 @@ router.get('/followRequestList', function (req, res, next) { // 팔로우 요청
         console.log(err);
         res.status(500);
       } else {
-        console.log(followRequestList);
         res.render('followRequestList', { 'followRequestList': followRequestList });
       }
     });

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <%- include('header') %>
+    <title>Direct</title>
+    <style>
+      .layout_area{
+        height: 600px;
+        border: solid 1px;
+      }
+      
+      .chatBox_area{
+        display: flex;
+        margin:10px;
+        height: 96%;
+      }
+      
+      .chatting_area{
+        display: flex;
+        flex-direction: column;
+        flex-grow: 3;
+        margin:10px;
+        height: 96%;
+        border: solid 1px;
+      }
+
+      .room_no{
+        border-bottom: solid 1px;
+        height:30px;
+        padding-left: 5px;
+      }
+
+      .message_area{
+        margin:10px;
+        height: 450px;
+        overflow-y: scroll;
+      }
+      
+      .text_div{
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        margin: 0 5px 5px 5px;
+        border: solid 1px;
+      }
+
+      #text_area{
+        flex-grow: 1;
+        resize: none;
+      }
+
+      .right_area{
+        flex-grow: 1;
+      }
+
+      .userList_area{
+        display:flex;
+        flex-direction: column;
+        height: 80%;
+        margin: 10px;
+        border: solid 1px;
+      }
+
+      .userList{
+        flex-grow: 1;
+        margin: 10px;
+        overflow-y: scroll;
+        text-align: center;
+      }
+      
+      .exit{
+        
+        text-align: center;
+      }
+
+      .notice_text{
+        display: block;
+        text-align: center;
+      }
+
+      .message_text{
+        display: block;
+      }
+
+    </style>
+  </head>
+  <body>
+    <%- include('nav') %>
+
+    <div class="container mb-3">
+        <div class="jumbotron">
+          <div class="layout_area">
+            <div class="chatBox_area">
+              <div class="chatting_area">
+                <div class="room_no">상대방 아이디 : <%= partnerId %></div>
+                <div class="message_area">
+                  <span class="message_text"></span>
+                  <% for (var i in message_list) { %>
+                  <span class="message_text"><%= message_list[i].MESSAGE_CONTENT %></span> 
+                  <% } %>
+                </div>
+                <div class="text_div">
+                  <input id="text_area" type="text"></input>
+                </div>
+              </div>
+
+              <div class="right_area">
+                <div class="userList_area">
+                  <div style="text-align: center; border-bottom: solid 1px; display:inline-block"></div>
+                  <div class="userList">
+                    <ul style="list-style:none;">
+                      <li><%= loginUser %></li>
+                      <li><%= partnerId %></li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="exit"><button type="button" class="btn btn-primary" style="width: 100px;" id="exit_btn">나가기</button></div>
+              </div>
+          </div>
+        </div>
+    </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    $(function(){
+
+      // room 이름은 유저 둘의 아이디를 더한 문자열로 한다.
+      // 문자열 비교 후 항상 같은 유저의 아이디가 앞으로 오게 배치한다.
+
+      var room;
+      var userId = '<%= loginUser %>';
+      var partnerId = '<%= partnerId %>';
+
+      if(userId >= partnerId){
+        room = userId+partnerId;
+      }else{
+        room = partnerId+userId;
+      }
+
+      console.log();
+
+      socket = io.connect('http://localhost:3000/');
+
+      socket.on("connect", function(data){
+      
+        console.log("server connect");
+        socket.emit('joinRoom', {room:room, userId:userId}); // 방 입장
+        
+        socket.on('msgSend', function(data){
+          var message = data.message_sender + " : " + data.message_content;
+          var str = `<span class="message_text">${message}</span>`;
+          
+          $(".message_area").find("span:last").after(str);
+          $('.message_area').scrollTop($('.message_area')[0].scrollHeight);
+        });
+
+        $('#exit_btn').click(function(){
+          socket.emit('leaveRoom', {room:room, userId:userId}); // 방 퇴장
+          window.location.href="/users/friendsList";
+        });
+
+        $("#text_area").keypress(function(e){
+          if(e.keyCode == 13){
+            send();
+          }
+        });
+
+        function send() {
+          var message_content = $("#text_area").val();
+          var message_sender = '<%= loginUser %>';
+          var messageObject = {
+            "message_content" : message_content,
+            "message_sender" : message_sender,
+            "message_receiver" : partnerId,
+            "room" : room
+          };
+
+          if(message_content == "" || message_content == null){
+            alert("메세지를 입력해주세요.");
+            $("#text_area").focus();
+          }else{
+            socket.emit('sendMsg', messageObject);
+            
+            $.ajax({  // Message DB 저장
+              type: 'post',
+              url: '/direct/insert_message',
+              contentType: "application/json; charset=utf-8",
+              dataType: 'text',
+              data: JSON.stringify(messageObject),
+              success: function(data) {
+                if (data) {
+                  console.log('메세지 저장 성공');
+                } 
+              }, error : function(err){
+                  console.log(err);
+              }
+            });
+            $("#text_area").val('');
+            $("#text_area").focus();
+            $('.message_area').scrollTop($('.message_area')[0].scrollHeight);
+          }
+        }
+
+      });
+
+    });
+
+    
+  </script>
+  
+  </body>
+</html>

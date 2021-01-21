@@ -43,11 +43,11 @@
 
         $("tr.content .direct_btn").click(function(){
 
-          var follow_from = $(this).parent('td').parent('tr').children('td').eq(0).text();
-          console.log(follow_from.substring(3, follow_from.length));
+          var partnerId = $(this).parent('td').parent('tr').children('td').eq(0).text();
+          console.log(partnerId.substring(3, partnerId.length));
 
-          follow_from  = follow_from.substring(3, follow_from.length);
-          window.location.href='/users/rejectFollow?follow_from='+follow_from;
+          partnerId = partnerId.substring(3, partnerId.length);
+          window.location.href='/direct?partnerId='+partnerId;
         });        
       });
     </script>
