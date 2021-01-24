@@ -32,9 +32,14 @@ io.on('connection', function(socket){ // 소켓이 연결되었을
   socket.on('joinRoom', function(data){
     var userId = data.userId;
     var room = data.room;
+    var roomInfo = [];
+
     socket.join(room);  // 룸 입장
     console.log('JOIN ROOM', io.sockets.adapter.rooms);
     io.sockets.in(room).emit('msgAlert', userId + '님이 입장하셨습니다.');
+    
+    io.sockets.in(room).emit('roomInfo', roomInfo);
+
   });
   socket.on('leaveRoom', function(data){
 

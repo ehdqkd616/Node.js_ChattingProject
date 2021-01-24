@@ -11,14 +11,15 @@ var app = express();
 app.use(expressSession({
   secret: 'secretKey',
   resave: false,
-  saveUninitialized: false, // 세션이 저장되기 전에 uninitialized 상태로 미리 만들어서 저장. 
+  saveUninitialized: true, // 세션이 저장되기 전에 uninitialized 상태로 미리 만들어서 저장. 
   store: new FileStore()
   })
 );
 
-// req.session이 undefined 되는 문제
+// req.session이 undefined 되는 문제 해결
 // app.use(expressSession) 구문을 라우터보다 먼저 사용
-// saveUninitialized: true -> false 로 설정
+// req.session.save 함수를 명시적으로 사용하여 안전하게 session에 값이 저장된 후 redirect를 한다. 
+// res.redirect를 바로 하면 node.js는 비동기적으로 처리하기 때문에 session에 값이 저장되기 전에 redirect 될 수 있다.
 
 
 var passport = require('passport')

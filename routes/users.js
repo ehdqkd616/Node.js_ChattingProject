@@ -5,9 +5,6 @@ var db = require('../lib/db'); // 커넥션 연결
 
 router.post('/signin', function (req, res, next) { // 로그인
 
-  console.log("signin, req.session.is_logined : " + req.session.is_logined)
-  console.log("signin, req.session.userId : " + req.session.userId)
-
   var userId = req.body.userId;
   var password = req.body.password;
   var sql = 'SELECT * FROM USER WHERE USERID=?';
@@ -21,20 +18,12 @@ router.post('/signin', function (req, res, next) { // 로그인
       if (password == result[0].PASSWORD) {
         req.session.is_logined = true;
         req.session.userId = result[0].USERID;
-        if(req.session.is_logined != true){
-          while(req.session.is_logined != true){
-            req.session.is_logined = true;
-          }
-        } else if(req.session.userId == undefined){
-          while(req.session.userId == undefined){
-            req.session.userId = result[0].USERID;
-          }
-        }
 
-        console.log("/signin 직후 req.session.userId : " + req.session.userId);
-        console.log("/signin 직후 req.session.is_logined : " + req.session.is_logined);
-        
-        res.redirect('/introduce');
+        // req.session.save 함수를 명시적으로 사용하여 안전하게 session에 값이 저장된 후 redirect를 한다. 
+        // res.redirect를 바로 하면 node.js는 비동기적으로 처리하기 때문에 session에 값이 저장되기 전에 redirect 될 수 있다.
+        req.session.save(function(err) { 
+          res.redirect('/introduce');
+        });
       } else {
         return res.send('please check your password.');
       }
@@ -45,8 +34,6 @@ router.post('/signin', function (req, res, next) { // 로그인
 
 
 router.get('/signup', function (req, res, next) { // 회원가입 폼
-  console.log("/signup, req.session.is_logined : " + req.session.is_logined)
-  console.log("/signup, req.session.userId : " + req.session.userId) 
   res.render('signup');
 });
 
@@ -69,9 +56,6 @@ router.post('/idCheck', function (req, res, next) { // 아이디 중복체크
 
 router.post('/signup', function (req, res, next) { // 회원가입
 
-  console.log("/signup, req.session.is_logined : " + req.session.is_logined)
-  console.log("/signup, req.session.userId : " + req.session.userId)
-
   var body = req.body;
   var param = [body.userId, body.password];
   var sql = 'INSERT INTO USER (USERID, PASSWORD, JOIN_DATE) VALUES(?,?,SYSDATE())';
@@ -89,15 +73,16 @@ router.post('/signup', function (req, res, next) { // 회원가입
 router.get('/logout', function (req, res, next) {
   req.session.is_logined = false;
   req.session.destroy(function(err){
-    console.log(err);
-    res.redirect('/');
+    if(err){
+      console.log(err);
+    } else{
+      res.clearCookie('connect.sid');
+      res.redirect('/');
+    }
   });
 });
 
 router.get('/allList', function (req, res, next) { // 유저 리스트
-  
-  console.log("/allList, req.session.is_logined : " + req.session.is_logined)
-  console.log("/allList, req.session.userId : " + req.session.userId)
   
   if(req.session.is_logined == false || req.session.userId == undefined){
     res.redirect('/');
@@ -120,9 +105,6 @@ router.get('/allList', function (req, res, next) { // 유저 리스트
 
 router.get('/followRequestList', function (req, res, next) { // 팔로우 요청자 리스트
 
-  console.log("followRequestList, req.session.is_logined : " + req.session.is_logined)
-  console.log("followRequestList, req.session.userId : " + req.session.userId)
-
   if(req.session.is_logined == false || req.session.userId == undefined){
     res.redirect('/');
   } else {
@@ -144,9 +126,6 @@ router.get('/followRequestList', function (req, res, next) { // 팔로우 요청
 });
 
 router.get('/friendsList', function (req, res, next) { // 친구 리스트
-
-  console.log("/friendsList, req.session.is_logined : " + req.session.is_logined)
-  console.log("/friendsList, req.session.userId : " + req.session.userId)
 
   if(req.session.is_logined == false || req.session.userId == undefined){
     res.redirect('/');
@@ -172,9 +151,6 @@ router.get('/friendsList', function (req, res, next) { // 친구 리스트
 
 router.get('/requestFollow', function (req, res, next) { // 팔로우 신청
   
-  console.log("/requestFollow, req.session.is_logined : " + req.session.is_logined)
-  console.log("/requestFollow, req.session.userId : " + req.session.userId)
-
   if(req.session.is_logined == false || req.session.userId == undefined){
     res.redirect('/');
   } else {
@@ -197,9 +173,6 @@ router.get('/requestFollow', function (req, res, next) { // 팔로우 신청
 
 router.get('/acceptFollow', function (req, res, next) { // 팔로우 수락
  
-  console.log("/acceptFollow, req.session.is_logined : " + req.session.is_logined)
-  console.log("/acceptFollow, req.session.userId : " + req.session.userId)
-
   if(req.session.is_logined == false || req.session.userId == undefined){
     res.redirect('/');
   } else {
