@@ -3,7 +3,10 @@ const { connect } = require('../lib/db');
 var router = express.Router();
 var db = require('../lib/db'); // 커넥션 연결
 
-router.post('/signin', function (req, res, next) { // 회원가입 폼
+router.post('/signin', function (req, res, next) { // 로그인
+
+  console.log("signin, req.session.is_logined : " + req.session.is_logined)
+  console.log("signin, req.session.userId : " + req.session.userId)
 
   var userId = req.body.userId;
   var password = req.body.password;
@@ -18,6 +21,9 @@ router.post('/signin', function (req, res, next) { // 회원가입 폼
       if (password == result[0].PASSWORD) {
         req.session.is_logined = true;
         req.session.userId = result[0].USERID;
+        console.log("/signin 직후 req.session.userId : " + req.session.userId);
+        console.log("/signin 직후 req.session.is_logined : " + req.session.is_logined);
+        
         res.redirect('/introduce');
       } else {
         return res.send('please check your password.');
@@ -25,18 +31,19 @@ router.post('/signin', function (req, res, next) { // 회원가입 폼
     }
 
   });
-
-  if (req.session.user)
-
-    res.render('signup');
 });
 
 
 router.get('/signup', function (req, res, next) { // 회원가입 폼
+  console.log("/signup, req.session.is_logined : " + req.session.is_logined)
+  console.log("/signup, req.session.userId : " + req.session.userId) 
   res.render('signup');
 });
 
 router.post('/signup', function (req, res, next) { // 회원가입
+
+  console.log("/signup, req.session.is_logined : " + req.session.is_logined)
+  console.log("/signup, req.session.userId : " + req.session.userId)
 
   var body = req.body;
   var param = [body.userId, body.password];
@@ -55,12 +62,16 @@ router.post('/signup', function (req, res, next) { // 회원가입
 router.get('/logout', function (req, res, next) {
   req.session.is_logined = false;
   req.session.destroy();
+  console.log("req.session : " + req.session);
   res.redirect('/');
 });
 
 router.get('/allList', function (req, res, next) { // 유저 리스트
-
-  if(req.session.is_logined == false || req.session.is_logined == undefined){
+  
+  console.log("/allList, req.session.is_logined : " + req.session.is_logined)
+  console.log("/allList, req.session.userId : " + req.session.userId)
+  
+  if(req.session.is_logined == false || req.session.userId == undefined){
     res.redirect('/');
   }else{
     var loginUser = req.session.userId;
@@ -81,7 +92,10 @@ router.get('/allList', function (req, res, next) { // 유저 리스트
 
 router.get('/followRequestList', function (req, res, next) { // 팔로우 요청자 리스트
 
-  if(req.session.is_logined == false || req.session.is_logined == undefined){
+  console.log("followRequestList, req.session.is_logined : " + req.session.is_logined)
+  console.log("followRequestList, req.session.userId : " + req.session.userId)
+
+  if(req.session.is_logined == false || req.session.userId == undefined){
     res.redirect('/');
   } else {
     var loginUser = req.session.userId;
@@ -103,7 +117,10 @@ router.get('/followRequestList', function (req, res, next) { // 팔로우 요청
 
 router.get('/friendsList', function (req, res, next) { // 친구 리스트
 
-  if(req.session.is_logined == false || req.session.is_logined == undefined){
+  console.log("/friendsList, req.session.is_logined : " + req.session.is_logined)
+  console.log("/friendsList, req.session.userId : " + req.session.userId)
+
+  if(req.session.is_logined == false || req.session.userId == undefined){
     res.redirect('/');
   } else {
     var loginUser = req.session.userId;
@@ -127,7 +144,10 @@ router.get('/friendsList', function (req, res, next) { // 친구 리스트
 
 router.get('/requestFollow', function (req, res, next) { // 팔로우 신청
   
-  if(req.session.is_logined == false || req.session.is_logined == undefined){
+  console.log("/requestFollow, req.session.is_logined : " + req.session.is_logined)
+  console.log("/requestFollow, req.session.userId : " + req.session.userId)
+
+  if(req.session.is_logined == false || req.session.userId == undefined){
     res.redirect('/');
   } else {
     var loginUser = req.session.userId;
@@ -149,7 +169,10 @@ router.get('/requestFollow', function (req, res, next) { // 팔로우 신청
 
 router.get('/acceptFollow', function (req, res, next) { // 팔로우 수락
  
-  if(req.session.is_logined == false || req.session.is_logined == undefined){
+  console.log("/acceptFollow, req.session.is_logined : " + req.session.is_logined)
+  console.log("/acceptFollow, req.session.userId : " + req.session.userId)
+
+  if(req.session.is_logined == false || req.session.userId == undefined){
     res.redirect('/');
   } else {
     var loginUser = req.session.userId;
@@ -179,7 +202,11 @@ router.get('/acceptFollow', function (req, res, next) { // 팔로우 수락
 });
 
 router.get('/rejectFollow', function (req, res, next) { // 팔로우 거절
-  if(req.session.is_logined == false || req.session.is_logined == undefined){
+  
+  console.log("/rejectFollow, req.session.is_logined : " + req.session.is_logined)
+  console.log("/rejectFollow, req.session.userId : " + req.session.userId)
+
+  if(req.session.is_logined == false || req.session.userId == undefined){
     res.redirect('/');
   } else {
     var loginUser = req.session.userId;
@@ -200,7 +227,10 @@ router.get('/rejectFollow', function (req, res, next) { // 팔로우 거절
 
 router.get('/deleteFollow', function (req, res, next) { // 친구 삭제
   
-  if(req.session.is_logined == false || req.session.is_logined == undefined){
+  console.log("/deleteFollow, req.session.is_logined : " + req.session.is_logined)
+  console.log("/deleteFollow, req.session.userId : " + req.session.userId)
+
+  if(req.session.is_logined == false || req.session.userId == undefined){
     res.redirect('/');
   } else {
     var loginUser = req.session.userId;

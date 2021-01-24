@@ -19,21 +19,6 @@ var app = express();
 var server = http.Server(app);
 var io = require('socket.io')(server); 
 
-// io.on('connection', function (socket) { // 소켓 연결 시
-
-//   console.log("a user connected");  
-//   socket.broadcast.emit('hi');  // 소켓에 전부 보내기
-
-//   socket.on('disconnect', function () {
-//     console.log('user disconnected');
-//   });
-
-//   socket.on('chatMessage', function (msg) {
-//     console.log('message: ' + msg);
-//     io.emit('chatMessage', msg);
-//   });
-// });
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
