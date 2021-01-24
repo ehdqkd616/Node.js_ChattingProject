@@ -40,6 +40,24 @@ router.get('/signup', function (req, res, next) { // 회원가입 폼
   res.render('signup');
 });
 
+router.post('/idCheck', function (req, res, next) { // 아이디 중복체크
+  var userId = req.body.userId;
+
+  var sql = "SELECT * FROM USER WHERE USERID = ?";
+  
+  db.query(sql, userId, function (err, result) {
+    if (err) {
+      console.log(err);
+      res.status(500);
+    } else {
+      console.log(result);
+      res.send(result);
+    }
+  });
+
+});
+
+
 router.post('/signup', function (req, res, next) { // 회원가입
 
   console.log("/signup, req.session.is_logined : " + req.session.is_logined)

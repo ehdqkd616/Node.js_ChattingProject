@@ -1,24 +1,151 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <%- include('header') %>
+
+<head>
+  <%- include('header') %>
     <title>Sign up</title>
-  </head>
-  <body>
-    <%- include('nav') %>
+</head>
+
+<body>
+  <%- include('nav') %>
 
     <div class="container mb-3">
-        <div class="jumbotron">
-            <form action="/users/signup" method="post">
-                <div class="loginArea">
-                    <input type="text" class="form-control loginBox" placeholder="ID" name="userId">
-                    <input type="password" class="form-control loginBox" placeholder="Password" name="password">
-                </div>
-                <div class="buttonArea">
-                    <button type="submit" class="btn btn-success">Sign up</button>
-                </div>
-            </form>
-        </div>
+      <div class="jumbotron">
+        <form action="/users/signup" method="post" id="reg_submit">
+          <div class="loginArea">
+            <label for="user_id">아이디&nbsp&nbsp&nbsp&nbsp</label>
+            <input type="text" id="user_id" class="form-control loginBox" placeholder="ID" name="userId" required>
+            <input type="hidden" id="idCheck" value="uncheck">
+            <label for="user_id">(4~12자만 가능)</label>
+            <div class="check_font" id="id_check"></div>
+            
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" class="form-control loginBox" placeholder="Password" name="password" required>
+            <input type="hidden" id="passCheck" value="uncheck">
+            <label for="password">(6~100자만 가능)</label>
+            <div class="check_font2" id="password_check"></div>
+
+          </div>
+          <div class="buttonArea">
+            <button type="submit" class="btn btn-success" onclick="return check_submit()">Sign up</button>
+          </div>
+        </form>
+      </div>
     </div>
-  </body>
+
+
+    <script>
+
+      $(function(){
+        $("#user_id").focus();
+      });
+
+      $("#user_id").keyup(function () {
+
+        var user_id = $("#user_id").val();
+        var reg_submit = $("#reg_submit").attr("disabled");
+
+        console.log("최초의 reg_submit : " + reg_submit);
+
+        $.ajax({
+          type: 'POST',
+          url: '/users/idCheck',
+          data:{
+            "userId":user_id
+          },
+          success: function (data) {
+            if (data.length == 1) {
+              $("#id_check").text("사용중인 아이디입니다.");
+              $("#id_check").css("color", "red");
+              $("#idCheck").val("uncheck");
+              console.log("reg_submit : " + $("#reg_submit").attr("disabled"));
+              
+            } else {
+              
+              if (user_id.length >= 4 && user_id.length <= 12) {
+                $("#id_check").text("사용가능한 아이디입니다.");
+                $("#id_check").css("color", "blue");
+                $("#idCheck").val("check");
+                console.log("reg_submit : " + $("#reg_submit").attr("disabled"));
+                
+              } else if (user_id == "") {
+                
+                $('#id_check').text('아이디를 입력해주세요.');
+                $('#id_check').css('color', 'red');
+                $("#idCheck").val("uncheck");
+                
+              } else {
+                
+                $('#id_check').text("아이디는 소문자와 숫자 4~12자리만 가능합니다.");
+                $('#id_check').css('color', 'red');
+                $("#idCheck").val("uncheck");
+              }
+              
+            }
+          }, error: function () {
+            console.log("실패");
+          }
+        });
+      });
+      
+      $("#password").keyup(function () {
+        var password = $("#password").val();
+        
+        if(password.length >= 6 && password.length < 100){
+          
+          $('#password_check').text("사용 가능한 비밀번호 입니다.");
+          $('#password_check').css('color', 'blue');
+          $("#passCheck").val("check");
+          
+        } else if(password == ""){
+          
+          $('#password_check').text('비밀번호를 입력해주세요.');
+          $('#password_check').css('color', 'red');
+          $("#passCheck").val("uncheck");
+          
+        } else if(password.length < 6){
+          
+          $('#password_check').text("비밀번호는 6자리 이상 100자 미만 가능합니다.");
+          $('#password_check').css('color', 'red');
+          $("#passCheck").val("uncheck");
+        }
+
+      });
+
+      function check_submit(){
+        var user_id = $("#user_id").val();
+        var password = $("#password").val();
+        var idCheck = $("#idCheck").val();
+        var passCheck = $("#passCheck").val();
+
+        if(idCheck == "uncheck"){
+          if(user_id == ""){
+            alert("아이디를 입력해주세요.");
+            return false;
+          } else{
+            alert("사용 가능한 아이디를 입력해주세요.");
+            return false;
+          }
+        } else if(passCheck == "uncheck"){
+          if(password == ""){
+            alert("비밀번호를 입력해주세요.");
+            return false;
+          } else{
+            alert("사용 가능한 비밀번호를 입력해주세요.");
+            return false;
+          }
+        } else {
+          if(confirm(user_id + "으로 회원가입 하시겠습니까?")){
+            return true;
+          }else {
+            alert('취소하였습니다');
+            return false;
+          }
+        }
+      }
+
+    </script>
+
+</body>
+
 </html>
