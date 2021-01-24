@@ -21,6 +21,16 @@ router.post('/signin', function (req, res, next) { // 로그인
       if (password == result[0].PASSWORD) {
         req.session.is_logined = true;
         req.session.userId = result[0].USERID;
+        if(req.session.is_logined != true){
+          while(req.session.is_logined != true){
+            req.session.is_logined = true;
+          }
+        } else if(req.session.userId == undefined){
+          while(req.session.userId == undefined){
+            req.session.userId = result[0].USERID;
+          }
+        }
+
         console.log("/signin 직후 req.session.userId : " + req.session.userId);
         console.log("/signin 직후 req.session.is_logined : " + req.session.is_logined);
         
@@ -50,7 +60,6 @@ router.post('/idCheck', function (req, res, next) { // 아이디 중복체크
       console.log(err);
       res.status(500);
     } else {
-      console.log(result);
       res.send(result);
     }
   });
@@ -79,9 +88,10 @@ router.post('/signup', function (req, res, next) { // 회원가입
 
 router.get('/logout', function (req, res, next) {
   req.session.is_logined = false;
-  req.session.destroy();
-  console.log("req.session : " + req.session);
-  res.redirect('/');
+  req.session.destroy(function(err){
+    console.log(err);
+    res.redirect('/');
+  });
 });
 
 router.get('/allList', function (req, res, next) { // 유저 리스트

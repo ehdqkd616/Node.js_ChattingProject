@@ -38,6 +38,8 @@
     "moment": "^2.29.1",
     "morgan": "~1.9.1",
     "mysql": "^2.18.1",
+    "passport": "^0.4.1",
+    "passport-local": "^1.0.0",
     "sanitize-html": "^2.3.0",
     "session-file-store": "^1.5.0",
     "socket.io": "^3.1.0"
