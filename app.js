@@ -21,11 +21,6 @@ app.use(expressSession({
 // req.session.save 함수를 명시적으로 사용하여 안전하게 session에 값이 저장된 후 redirect를 한다. 
 // res.redirect를 바로 하면 node.js는 비동기적으로 처리하기 때문에 session에 값이 저장되기 전에 redirect 될 수 있다.
 
-
-var passport = require('passport')
-, LocalStrategy = require('passport-local')
-, Strategy;
-
 var bodyParser = require('body-parser');      // body-parser 모듈 로드
 
 var logger = require('morgan');               // 로거 모듈

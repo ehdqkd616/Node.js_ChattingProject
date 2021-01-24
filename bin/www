@@ -8,6 +8,7 @@ var app = require('../app');
 var debug = require('debug')('social-chatting-service:server');
 var http = require('http');
 const { Socket } = require('dgram');
+const { emit } = require('../app');
 
 /**
  * Get port from environment and store in Express.
@@ -27,19 +28,48 @@ var server = http.createServer(app);
 var io = require('socket.io')(server);
 var direct = io.of('/direct');  // namespace  direct
 
+var userList = [];  
+
 io.on('connection', function(socket){ // 소켓이 연결되었을 
+  var room1Cnt = 0;
+  var room2Cnt = 0;
+
+  for(var i in userList){
+    if(userList[i].room == "room1"){
+      room1Cnt++;
+    }else if(userList[i].room == "room2"){
+      room2Cnt++;
+    }
+  }
+
+  io.sockets.emit('initUserCountInfoRoom1', room1Cnt);
+  io.sockets.emit('initUserCountInfoRoom2', room2Cnt);  
 
   socket.on('joinRoom', function(data){
     var userId = data.userId;
     var room = data.room;
-    var roomInfo = [];
 
     socket.join(room);  // 룸 입장
     console.log('JOIN ROOM', io.sockets.adapter.rooms);
     io.sockets.in(room).emit('msgAlert', userId + '님이 입장하셨습니다.');
     
-    io.sockets.in(room).emit('roomInfo', roomInfo);
+    var client = {
+      userId : userId,
+      room : room,
+    };
 
+    if(userList.length == 0){
+      userList.push(client);
+      io.sockets.in(room).emit('roomInfo', userList);
+    }else{
+      for(var i in userList){ 
+        if(userList[i].userId == client.userId){ // 새로고침 했을 경우 중복 제거
+          userList.splice(i, 1);
+        }
+      }
+      userList.push(client);
+      io.sockets.in(room).emit('roomInfo', userList);
+    }
   });
   socket.on('leaveRoom', function(data){
 
@@ -48,6 +78,19 @@ io.on('connection', function(socket){ // 소켓이 연결되었을
     socket.leave(room);  // 룸 퇴장
     console.log('OUT ROOM', io.sockets.adapter.rooms);
     io.sockets.in(room).emit('msgAlert', userId + '님이 퇴장하셨습니다.');
+
+    var client = {
+      userId : userId,
+      room : room,
+    };
+    
+    for(var i in userList){
+      if(userList[i].userId == client.userId){
+        userList.splice(i, 1);
+      }
+    }
+    io.sockets.in(room).emit('roomInfo', userList);
+
   });
   socket.on('sendMsg', function(data){  // message 보내기
     var room = data.room;
@@ -55,6 +98,14 @@ io.on('connection', function(socket){ // 소켓이 연결되었을
     //socket.broadcast.to(room).emit('msgAlert',data); //자신 제외 룸안의 유저
     //socket.in(room).emit('msgAlert',data); //broadcast 동일하게 가능 자신 제외 룸안의 유저
     //io.of('namespace').in(room).emit('msgAlert', data) //of 지정된 name space의 유저의 룸
+  });
+
+  socket.on('userCountInfo', function(data){
+    if(data.room == "room1"){
+      io.sockets.emit('userCountInfoRoom1', data.cnt);
+    }else if(data.room == "room2"){
+      io.sockets.emit('userCountInfoRoom2', data.cnt);
+    }
   });
 
   socket.on('disconnect', function(){

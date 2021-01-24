@@ -104,11 +104,10 @@
 
               <div class="right_area">
                 <div class="userList_area">
-                  <div style="text-align: center; border-bottom: solid 1px; display:inline-block">현재 인원 : </div>
+                  <div class="userCount" style="text-align: center; border-bottom: solid 1px; display:inline-block">현재 인원 : </div>
                   <div class="userList">
-                    <ul style="list-style:none;">
-                      <li>user01</li>
-                      <li>user02</li>
+                    <ul class = "userListUl" style="list-style:none;">
+
                     </ul>
                   </div>
                 </div>
@@ -125,8 +124,6 @@
 
       var room = '<%= room%>';
       var userId = '<%=loginUser%>';
-
-      console.log();
 
       socket = io.connect('http://localhost:3000/');
 
@@ -149,6 +146,24 @@
           
           $(".message_area").find("span:last").after(str);
           $('.message_area').scrollTop($('.message_area')[0].scrollHeight);
+        });
+
+        socket.on('roomInfo', function(data){
+          
+          var str = "";
+          var cnt = 0;
+
+          for(var i in data){
+            if(data[i].room == room){
+              str += '<li>'+data[i].userId+'</li>';
+              cnt++;
+            }
+          }
+          $(".userListUl").html(str);
+          $(".userCount").html("현재 인원 : " + cnt);
+
+          socket.emit('userCountInfo', {room:room, cnt:cnt});
+
         });
 
         $('#exit_btn').click(function(){
@@ -184,9 +199,10 @@
 
       });
 
+
     });
 
-    
+
   </script>
   
   </body>
