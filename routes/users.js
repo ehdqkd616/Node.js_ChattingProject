@@ -1,7 +1,7 @@
 var express = require('express');
-const { connect } = require('../lib/db');
 var router = express.Router();
-var db = require('../lib/db'); // 커넥션 연결
+// var db = require('../lib/db'); // 커넥션 연결(개발환경)
+var db = require('../lib/db_deploy'); // 커넥션 연결(배포환경)
 
 router.post('/signin', function (req, res, next) { // 로그인
 

@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
-var db = require('../lib/db'); // 커넥션 연결
+// var db = require('../lib/db'); // 커넥션 연결(개발환경)
+var db = require('../lib/db_deploy'); // 커넥션 연결(배포환경)
 
 /* GET users listing. */
 router.get('/', function(req, res, next) { // Direct 채팅방 입장
