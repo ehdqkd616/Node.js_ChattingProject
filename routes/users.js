@@ -67,8 +67,6 @@ router.post('/signup', function (req, res, next) { // 회원가입
       res.redirect('/');
     }
   });
-  
-  db.end(); // connection 해제
 });
 
 router.get('/logout', function (req, res, next) {
