@@ -140,7 +140,8 @@
 
       console.log();
 
-      socket = io.connect('http://localhost:3000/');
+      // socket = io.connect('http://localhost:3000/');  // (개발 환경)
+      socket = io.connect();  // (배포 환경)
 
       socket.on("connect", function(data){
       
