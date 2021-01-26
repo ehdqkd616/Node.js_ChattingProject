@@ -18,7 +18,7 @@ router.post('/signin', function (req, res, next) { // 로그인
       if (password == result[0].PASSWORD) {
         req.session.is_logined = true;
         req.session.userId = result[0].USERID;
-
+        
         // req.session.save 함수를 명시적으로 사용하여 안전하게 session에 값이 저장된 후 redirect를 한다. 
         // res.redirect를 바로 하면 node.js는 비동기적으로 처리하기 때문에 session에 값이 저장되기 전에 redirect 될 수 있다.
         req.session.save(function(err) { 
@@ -28,7 +28,6 @@ router.post('/signin', function (req, res, next) { // 로그인
         return res.send('please check your password.');
       }
     }
-
   });
 });
 
@@ -68,6 +67,8 @@ router.post('/signup', function (req, res, next) { // 회원가입
       res.redirect('/');
     }
   });
+  
+  db.end(); // connection 해제
 });
 
 router.get('/logout', function (req, res, next) {
@@ -144,7 +145,7 @@ router.get('/friendsList', function (req, res, next) { // 친구 리스트
         console.log(friendsList);
         res.render('friendsList', { 'friendsList': friendsList });
       }
-    });
+    }); 
   }
 });
 

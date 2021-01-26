@@ -23,7 +23,6 @@ router.get('/', function(req, res, next) { // Direct 채팅방 입장
       }
     });
   }
-  
 }); 
 
 router.post('/insert_message', function(req, res, next) { 
@@ -38,12 +37,12 @@ router.post('/insert_message', function(req, res, next) {
     var sql = `INSERT INTO MESSAGE (MESSAGE_CONTENT, MESSAGE_SENDTIME, MESSAGE_SENDER, MESSAGE_RECEIVER)
     VALUES (?, NOW(), ?, ?)`;
     
-    db.query(sql, [message_content, message_sender, message_receiver], function (err, result){
+    db.query(sql, [message_content, message_sender, message_receiver], function (err, result){      
       if(err) {
         console.log(err);
       } else{
         res.send(result);
-      } 
+      }
     });
   }
 });
