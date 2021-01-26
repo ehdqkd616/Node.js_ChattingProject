@@ -140,7 +140,6 @@ router.get('/friendsList', function (req, res, next) { // 친구 리스트
         console.log(err);
         res.status(500);
       } else {
-        console.log(friendsList);
         res.render('friendsList', { 'friendsList': friendsList });
       }
     }); 
